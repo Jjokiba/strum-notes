@@ -57,6 +57,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        fretboard: {
+          wood: "hsl(var(--fretboard-wood))",
+          string: "hsl(var(--fretboard-string))",
+          marker: "hsl(var(--fret-marker))",
+          dot: "hsl(var(--fret-dot))",
+          highlight: "hsl(var(--note-highlight))",
+          notebg: "hsl(var(--note-bg))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -80,10 +88,21 @@ export default {
             height: "0",
           },
         },
+        "note-pulse": {
+          "0%, 100%": {
+            transform: "scale(1)",
+            opacity: "1",
+          },
+          "50%": {
+            transform: "scale(1.1)",
+            opacity: "0.8",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "note-pulse": "note-pulse 0.3s ease-in-out",
       },
     },
   },
