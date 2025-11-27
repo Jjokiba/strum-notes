@@ -1,6 +1,7 @@
 import Fret from "./Fret";
 import { getNoteAtFret, playNote } from "@/utils/audioUtils";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface GuitarStringProps {
   openNote: string;
@@ -9,25 +10,39 @@ interface GuitarStringProps {
 }
 
 const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps) => {
-  const [selectedFret, setSelectedFret] = useState<number | null>(null);
+  const [checkedFrets, setCheckedFrets] = useState<Set<number>>(new Set());
+  const [isVibrating, setIsVibrating] = useState(false);
 
   // String thickness varies by string number
   const stringThickness = stringNumber <= 2 ? 1 : stringNumber <= 4 ? 2 : 3;
 
-  const handleFretClick = (fretNumber: number) => {
+  const handleFretHover = (fretNumber: number) => {
     const note = getNoteAtFret(openNote, fretNumber);
-    playNote(note);
-    setSelectedFret(fretNumber);
+    playNote(note, 0.3);
     
-    // Clear selection after a short time
-    setTimeout(() => setSelectedFret(null), 500);
+    // Trigger string vibration animation
+    setIsVibrating(true);
+    setTimeout(() => setIsVibrating(false), 300);
+  };
+
+  const handleCheckChange = (fretNumber: number, checked: boolean) => {
+    const newChecked = new Set(checkedFrets);
+    if (checked) {
+      newChecked.add(fretNumber);
+    } else {
+      newChecked.delete(fretNumber);
+    }
+    setCheckedFrets(newChecked);
   };
 
   return (
-    <div className="relative flex items-center mb-1">
+    <div className="relative flex items-center mb-4">
       {/* String line that runs across all frets */}
       <div
-        className="absolute left-0 right-0 bg-fretboard-string opacity-50"
+        className={cn(
+          "absolute left-0 right-0 bg-fretboard-string opacity-50 transition-all duration-100",
+          isVibrating && "animate-string-vibrate"
+        )}
         style={{ height: `${stringThickness}px` }}
       />
       
@@ -45,8 +60,9 @@ const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps)
               key={i}
               fretNumber={i}
               note={note}
-              isSelected={selectedFret === i}
-              onClick={() => handleFretClick(i)}
+              isChecked={checkedFrets.has(i)}
+              onCheckChange={(checked) => handleCheckChange(i, checked)}
+              onHover={() => handleFretHover(i)}
             />
           );
         })}
