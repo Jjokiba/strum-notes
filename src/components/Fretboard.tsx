@@ -12,7 +12,7 @@ const Fretboard = () => {
           <Music className="w-8 h-8 text-primary" />
           <h1 className="text-4xl font-bold text-foreground">Guitar Fretboard</h1>
         </div>
-        <p className="text-muted-foreground">Click any fret to hear the note • Standard tuning (EADGBE)</p>
+        <p className="text-muted-foreground">Hover over frets to play notes • Check boxes to mark positions • Standard tuning (EADGBE)</p>
       </div>
 
       <div className="w-full max-w-7xl overflow-x-auto">
@@ -34,7 +34,7 @@ const Fretboard = () => {
           <div className="absolute left-6 top-20 bottom-6 w-1 bg-foreground rounded-full opacity-70" />
 
           {/* Strings */}
-          <div className="space-y-6">
+          <div className="space-y-2">
             {OPEN_STRINGS.map((openNote, index) => (
               <GuitarString
                 key={openNote}
@@ -49,7 +49,7 @@ const Fretboard = () => {
 
       <div className="mt-8 text-center text-sm text-muted-foreground max-w-md">
         <p className="mb-2">
-          Each fret shows the musical note at that position. Click to play and see it highlighted.
+          Hover over any fret to hear its note. Use checkboxes to mark important positions for learning.
         </p>
         <p className="text-xs opacity-75">
           Fret markers appear at positions 3, 5, 7, 9, 12 (double), and 15 to help with navigation.
