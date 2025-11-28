@@ -1,6 +1,23 @@
 // Web Audio API utility for generating guitar note tones
 
 let audioContext: AudioContext | null = null;
+let activeOscillators: OscillatorNode[] = [];
+
+// Stop all currently playing notes
+export const stopAllNotes = (): void => {
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+  
+  activeOscillators.forEach(osc => {
+    try {
+      osc.stop(now);
+    } catch (e) {
+      // Oscillator may already be stopped
+    }
+  });
+  
+  activeOscillators = [];
+};
 
 // Initialize the audio context
 const getAudioContext = (): AudioContext => {
@@ -42,14 +59,22 @@ const getFrequency = (note: string): number => {
 };
 
 // Play a tone that sounds more like a real acoustic guitar
-export const playNote = (note: string, duration: number = 0.5): void => {
+export const playNote = (note: string, duration: number = 0.5, stopPrevious: boolean = false): void => {
   const ctx = getAudioContext();
   const frequency = getFrequency(note);
+  
+  // Stop previous notes if in monophonic mode
+  if (stopPrevious) {
+    stopAllNotes();
+  }
   
   // Create multiple oscillators for harmonics (makes it sound more guitar-like)
   const fundamental = ctx.createOscillator();
   const harmonic2 = ctx.createOscillator();
   const harmonic3 = ctx.createOscillator();
+  
+  // Track these oscillators
+  activeOscillators.push(fundamental, harmonic2, harmonic3);
   
   // Create gain nodes for mixing
   const fundamentalGain = ctx.createGain();
@@ -109,6 +134,13 @@ export const playNote = (note: string, duration: number = 0.5): void => {
   fundamental.stop(now + duration);
   harmonic2.stop(now + duration);
   harmonic3.stop(now + duration);
+  
+  // Remove from active oscillators after they stop
+  setTimeout(() => {
+    activeOscillators = activeOscillators.filter(
+      osc => osc !== fundamental && osc !== harmonic2 && osc !== harmonic3
+    );
+  }, duration * 1000);
 };
 
 // Calculate note at a given string and fret
