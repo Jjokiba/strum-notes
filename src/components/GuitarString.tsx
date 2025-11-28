@@ -51,7 +51,7 @@ const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps)
       {/* String line that runs across all frets */}
       <div
         className={cn(
-          "absolute left-0 right-0 transition-all duration-200 cursor-pointer",
+          "absolute left-0 right-0 transition-all duration-200 cursor-pointer hover:opacity-80",
           isDisabled ? "bg-muted opacity-40" : "bg-fretboard-string opacity-50",
           !isDisabled && isVibrating && "animate-string-vibrate"
         )}
