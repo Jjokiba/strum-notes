@@ -10,14 +10,14 @@ interface GuitarStringProps {
 }
 
 const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps) => {
-  const [checkedFrets, setCheckedFrets] = useState<Set<number>>(new Set());
+  const [selectedFret, setSelectedFret] = useState<number>(0); // Default to open string
   const [isVibrating, setIsVibrating] = useState(false);
 
   // String thickness varies by string number
   const stringThickness = stringNumber <= 2 ? 1 : stringNumber <= 4 ? 2 : 3;
 
-  const handleFretHover = (fretNumber: number) => {
-    const note = getNoteAtFret(openNote, fretNumber);
+  const playCurrentNote = () => {
+    const note = getNoteAtFret(openNote, selectedFret);
     playNote(note, 0.3);
     
     // Trigger string vibration animation
@@ -25,22 +25,22 @@ const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps)
     setTimeout(() => setIsVibrating(false), 300);
   };
 
+  const handleStringHover = () => {
+    playCurrentNote();
+  };
+
   const handleCheckChange = (fretNumber: number, checked: boolean) => {
-    const newChecked = new Set(checkedFrets);
     if (checked) {
-      newChecked.add(fretNumber);
-    } else {
-      newChecked.delete(fretNumber);
+      setSelectedFret(fretNumber);
     }
-    setCheckedFrets(newChecked);
   };
 
   return (
-    <div className="relative flex items-center mb-4">
+    <div className="relative flex items-center mb-4" onMouseEnter={handleStringHover}>
       {/* String line that runs across all frets */}
       <div
         className={cn(
-          "absolute left-0 right-0 bg-fretboard-string opacity-50 transition-all duration-100",
+          "absolute left-0 right-0 bg-fretboard-string opacity-50 transition-all duration-100 cursor-pointer",
           isVibrating && "animate-string-vibrate"
         )}
         style={{ height: `${stringThickness}px` }}
@@ -60,9 +60,9 @@ const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps)
               key={i}
               fretNumber={i}
               note={note}
-              isChecked={checkedFrets.has(i)}
+              isChecked={selectedFret === i}
               onCheckChange={(checked) => handleCheckChange(i, checked)}
-              onHover={() => handleFretHover(i)}
+              onHover={handleStringHover}
             />
           );
         })}
