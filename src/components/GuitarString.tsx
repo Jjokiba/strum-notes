@@ -12,13 +12,16 @@ interface GuitarStringProps {
 const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps) => {
   const [selectedFret, setSelectedFret] = useState<number>(0); // Default to open string
   const [isVibrating, setIsVibrating] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   // String thickness varies by string number
   const stringThickness = stringNumber <= 2 ? 1 : stringNumber <= 4 ? 2 : 3;
 
   const playCurrentNote = () => {
+    if (isDisabled) return;
+    
     const note = getNoteAtFret(openNote, selectedFret);
-    playNote(note, 0.3);
+    playNote(note, 0.8);
     
     // Trigger string vibration animation
     setIsVibrating(true);
@@ -29,7 +32,15 @@ const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps)
     playCurrentNote();
   };
 
+  const handleStringClick = (e: React.MouseEvent) => {
+    // Only toggle disabled if clicking on the string line itself, not on frets
+    if (e.target === e.currentTarget) {
+      setIsDisabled(!isDisabled);
+    }
+  };
+
   const handleCheckChange = (fretNumber: number, checked: boolean) => {
+    if (isDisabled) return;
     if (checked) {
       setSelectedFret(fretNumber);
     }
@@ -40,19 +51,25 @@ const GuitarString = ({ openNote, stringNumber, totalFrets }: GuitarStringProps)
       {/* String line that runs across all frets */}
       <div
         className={cn(
-          "absolute left-0 right-0 bg-fretboard-string opacity-50 transition-all duration-100 cursor-pointer",
-          isVibrating && "animate-string-vibrate"
+          "absolute left-0 right-0 transition-all duration-200 cursor-pointer",
+          isDisabled ? "bg-muted opacity-40" : "bg-fretboard-string opacity-50",
+          !isDisabled && isVibrating && "animate-string-vibrate"
         )}
         style={{ height: `${stringThickness}px` }}
+        onClick={handleStringClick}
+        title={isDisabled ? "Click to enable string" : "Click to disable string"}
       />
       
       {/* String label */}
-      <div className="absolute left-2 z-10 text-xs font-bold text-foreground bg-background px-1 rounded">
+      <div className={cn(
+        "absolute left-2 z-10 text-xs font-bold bg-background px-1 rounded transition-colors",
+        isDisabled ? "text-muted-foreground" : "text-foreground"
+      )}>
         {openNote}
       </div>
 
       {/* Frets */}
-      <div className="flex">
+      <div className={cn("flex", isDisabled && "opacity-50 pointer-events-none")}>
         {Array.from({ length: totalFrets + 1 }, (_, i) => {
           const note = getNoteAtFret(openNote, i);
           return (

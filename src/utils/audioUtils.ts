@@ -41,32 +41,74 @@ const getFrequency = (note: string): number => {
   return frequency;
 };
 
-// Play a tone for a given note
+// Play a tone that sounds more like a real acoustic guitar
 export const playNote = (note: string, duration: number = 0.5): void => {
   const ctx = getAudioContext();
-  
-  // Create oscillator for the note
-  const oscillator = ctx.createOscillator();
-  const gainNode = ctx.createGain();
-  
-  oscillator.connect(gainNode);
-  gainNode.connect(ctx.destination);
-  
-  // Set frequency
   const frequency = getFrequency(note);
-  oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
   
-  // Use a more guitar-like waveform (triangle wave)
-  oscillator.type = 'triangle';
+  // Create multiple oscillators for harmonics (makes it sound more guitar-like)
+  const fundamental = ctx.createOscillator();
+  const harmonic2 = ctx.createOscillator();
+  const harmonic3 = ctx.createOscillator();
   
-  // Envelope: quick attack, gradual decay
-  gainNode.gain.setValueAtTime(0, ctx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.01); // Quick attack
-  gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration); // Decay
+  // Create gain nodes for mixing
+  const fundamentalGain = ctx.createGain();
+  const harmonic2Gain = ctx.createGain();
+  const harmonic3Gain = ctx.createGain();
+  const masterGain = ctx.createGain();
   
-  // Start and stop
-  oscillator.start(ctx.currentTime);
-  oscillator.stop(ctx.currentTime + duration);
+  // Create a filter to shape the tone
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(2000, ctx.currentTime);
+  filter.Q.setValueAtTime(1, ctx.currentTime);
+  
+  // Set up frequencies - fundamental and harmonics
+  fundamental.frequency.setValueAtTime(frequency, ctx.currentTime);
+  harmonic2.frequency.setValueAtTime(frequency * 2, ctx.currentTime);
+  harmonic3.frequency.setValueAtTime(frequency * 3, ctx.currentTime);
+  
+  // Use triangle wave for warmer sound
+  fundamental.type = 'triangle';
+  harmonic2.type = 'triangle';
+  harmonic3.type = 'sine';
+  
+  // Connect oscillators to their gain nodes
+  fundamental.connect(fundamentalGain);
+  harmonic2.connect(harmonic2Gain);
+  harmonic3.connect(harmonic3Gain);
+  
+  // Mix harmonics (fundamental is loudest, harmonics add color)
+  fundamentalGain.gain.setValueAtTime(1.0, ctx.currentTime);
+  harmonic2Gain.gain.setValueAtTime(0.3, ctx.currentTime);
+  harmonic3Gain.gain.setValueAtTime(0.15, ctx.currentTime);
+  
+  // Connect to filter and master gain
+  fundamentalGain.connect(filter);
+  harmonic2Gain.connect(filter);
+  harmonic3Gain.connect(filter);
+  filter.connect(masterGain);
+  masterGain.connect(ctx.destination);
+  
+  // Guitar-like ADSR envelope
+  const now = ctx.currentTime;
+  masterGain.gain.setValueAtTime(0, now);
+  masterGain.gain.linearRampToValueAtTime(0.3, now + 0.005); // Very quick attack (pluck)
+  masterGain.gain.exponentialRampToValueAtTime(0.15, now + 0.1); // Quick decay
+  masterGain.gain.exponentialRampToValueAtTime(0.05, now + duration * 0.5); // Sustain
+  masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration); // Release
+  
+  // Animate filter for more realistic sound
+  filter.frequency.exponentialRampToValueAtTime(800, now + duration);
+  
+  // Start and stop all oscillators
+  fundamental.start(now);
+  harmonic2.start(now);
+  harmonic3.start(now);
+  
+  fundamental.stop(now + duration);
+  harmonic2.stop(now + duration);
+  harmonic3.stop(now + duration);
 };
 
 // Calculate note at a given string and fret
