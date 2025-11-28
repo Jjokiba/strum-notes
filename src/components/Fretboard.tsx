@@ -1,9 +1,11 @@
 import GuitarString from "./GuitarString";
 import { Music, ChevronRight, Info } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetPortal, SheetOverlay } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
 const TOTAL_FRETS = 16;
@@ -11,18 +13,22 @@ const OPEN_STRINGS = ['E4', 'B3', 'G3', 'D3', 'A2', 'E2']; // Standard tuning (h
 
 const Fretboard = () => {
   const [noteLegendOpen, setNoteLegendOpen] = useState(false);
+  const [isPolyphonic, setIsPolyphonic] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 bg-background relative">
       {/* Info & Concepts Sheet - Right Side */}
       <div className="fixed top-4 right-4 z-50">
-        <Sheet>
+        <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="shadow-lg">
               <Info className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+          <SheetPortal>
+            <SheetOverlay className="bg-transparent" />
+            <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
             <SheetHeader>
               <SheetTitle>Info & Concepts</SheetTitle>
             </SheetHeader>
@@ -55,7 +61,8 @@ const Fretboard = () => {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-          </SheetContent>
+            </SheetContent>
+          </SheetPortal>
         </Sheet>
       </div>
 
@@ -103,6 +110,18 @@ const Fretboard = () => {
           <h1 className="text-4xl font-bold text-foreground">Guitar Fretboard</h1>
         </div>
         <p className="text-muted-foreground">Select one note per string • Slide over strings to play selected notes • Click strings to disable • Standard tuning (EADGBE)</p>
+        
+        {/* Polyphonic Mode Toggle */}
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <Switch 
+            id="polyphonic-mode" 
+            checked={isPolyphonic}
+            onCheckedChange={setIsPolyphonic}
+          />
+          <Label htmlFor="polyphonic-mode" className="cursor-pointer">
+            Polyphonic Mode {isPolyphonic ? "(Multiple strings at once)" : "(One string at a time)"}
+          </Label>
+        </div>
       </div>
 
       <div className="w-full max-w-7xl overflow-x-auto">
@@ -131,6 +150,8 @@ const Fretboard = () => {
                 openNote={openNote}
                 stringNumber={index + 1}
                 totalFrets={TOTAL_FRETS}
+                isPolyphonic={isPolyphonic}
+                isMenuOpen={isMenuOpen}
               />
             ))}
           </div>
