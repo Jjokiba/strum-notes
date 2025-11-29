@@ -143,25 +143,47 @@ export const playNote = (note: string, duration: number = 0.5, stopPrevious: boo
   }, duration * 1000);
 };
 
-// Calculate note at a given string and fret
+/**
+ * Calculate the musical note at any fret on a guitar string
+ * 
+ * How it works:
+ * 1. Takes the open string note (e.g., "E4")
+ * 2. Moves up the chromatic scale by the number of frets
+ * 3. Handles octave changes when passing note 'B'
+ * 
+ * @param openNote - The note of the open string (e.g., "E4", "A2")
+ * @param fret - The fret number (0 = open string, 1-16 = fretted)
+ * @returns The resulting note (e.g., "F4", "C3")
+ * 
+ * Example: 
+ * - getNoteAtFret("E4", 0) → "E4" (open string)
+ * - getNoteAtFret("E4", 1) → "F4" (1 semitone up)
+ * - getNoteAtFret("E4", 12) → "E5" (1 octave up)
+ */
 export const getNoteAtFret = (openNote: string, fret: number): string => {
+  // All 12 notes in the chromatic scale (repeats every octave)
   const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   
-  // Extract note name and octave
+  // Parse the input note
+  // "E4" → noteName = "E", octave = 4
   const noteName = openNote.slice(0, -1);
   let octave = parseInt(openNote.slice(-1));
   
-  // Find index in chromatic scale
+  // Find where this note sits in the chromatic scale
+  // "E" is at index 4
   let noteIndex = notes.indexOf(noteName);
   
-  // Add fret number to get new note
+  // Move up the scale by the number of frets
+  // Each fret = 1 semitone = 1 position in the array
   noteIndex += fret;
   
-  // Handle octave changes
+  // Handle octave wraparound
+  // When we go past 'B' (index 11), start over at 'C' in the next octave
   while (noteIndex >= 12) {
     noteIndex -= 12;
     octave++;
   }
   
+  // Return the new note with its octave
   return notes[noteIndex] + octave;
 };
