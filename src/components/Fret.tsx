@@ -1,18 +1,46 @@
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FRET_MARKERS } from "@/constants/guitarConfig";
+
+/**
+ * Fret Component
+ * 
+ * Represents a single fret position on a guitar string.
+ * Displays the note name, checkbox for selection, and fret markers.
+ * 
+ * VISUAL ELEMENTS:
+ * - Fret wire (vertical line on left edge)
+ * - Checkbox for note selection
+ * - Note label (highlighted when selected)
+ * - Decorative dots at specific fret positions (3, 5, 7, 9, 12, 15)
+ */
 
 interface FretProps {
+  /** The fret position (0 = open string, 1-16 = fretted) */
   fretNumber: number;
+  /** The musical note at this position (e.g., "E4", "F#3") */
   note: string;
+  /** Whether this fret is currently selected */
   isChecked: boolean;
+  /** Callback when checkbox state changes */
   onCheckChange: (checked: boolean) => void;
+  /** Callback when mouse enters this fret */
   onHover: () => void;
 }
 
 const Fret = ({ fretNumber, note, isChecked, onCheckChange, onHover }: FretProps) => {
-  // Fret markers appear at 3, 5, 7, 9, 12, 15
-  const hasDot = [3, 5, 7, 9, 15].includes(fretNumber);
-  const hasDoubleDot = fretNumber === 12;
+  
+  // ============= VISUAL MARKERS =============
+  
+  /**
+   * Determine if this fret should display decorative dots
+   * These help guitarists navigate the fretboard visually
+   * 
+   * Single dot: frets 3, 5, 7, 9, 15
+   * Double dot: fret 12 (octave marker)
+   */
+  const hasDot = FRET_MARKERS.SINGLE_DOTS.includes(fretNumber);
+  const hasDoubleDot = fretNumber === FRET_MARKERS.DOUBLE_DOT;
 
   return (
     <div

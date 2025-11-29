@@ -7,17 +7,48 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
+import { TOTAL_FRETS, OPEN_STRINGS } from "@/constants/guitarConfig";
 
-const TOTAL_FRETS = 16;
-const OPEN_STRINGS = ['E4', 'B3', 'G3', 'D3', 'A2', 'E2']; // Standard tuning (high to low)
+/**
+ * Fretboard Component
+ * 
+ * Main component that renders an interactive guitar fretboard.
+ * 
+ * COMPONENT STRUCTURE:
+ * - Info Sheet (right side): Educational content about guitar concepts
+ * - Note Legend (left side): Shows note names in different notations
+ * - Fretboard Grid: Renders 6 strings × 17 frets (0-16)
+ * 
+ * KEY INTERACTIONS:
+ * 1. Hold Ctrl key + hover over strings → plays the selected note on that string
+ * 2. Click checkboxes → select which note to play on each string
+ * 3. Click string line → disable/enable entire string
+ * 4. Polyphonic mode toggle → play multiple strings simultaneously or one at a time
+ */
 
 const Fretboard = () => {
+  // ============= COMPONENT STATE =============
+  
+  /** Controls visibility of the note legend panel (left side) */
   const [noteLegendOpen, setNoteLegendOpen] = useState(false);
+  
+  /** Toggle between monophonic (one string) and polyphonic (multiple strings) playback */
   const [isPolyphonic, setIsPolyphonic] = useState(false);
+  
+  /** Tracks if the info/concepts menu is open (prevents string interaction when true) */
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  /** Tracks if Ctrl/Cmd key is currently pressed (required to play strings) */
   const [isCtrlPressed, setIsCtrlPressed] = useState(false);
 
-  // Track Ctrl key state
+  // ============= KEYBOARD EVENT HANDLERS =============
+  
+  /**
+   * Track Ctrl/Cmd key state for string interaction
+   * 
+   * Why: Strings only play sound when Ctrl is held + mouse hovers
+   * This prevents accidental sound playback while navigating the UI
+   */
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
@@ -168,7 +199,34 @@ const Fretboard = () => {
           {/* Nut (left edge of fretboard) */}
           <div className="absolute left-6 top-20 bottom-6 w-1 bg-foreground rounded-full opacity-70" />
 
-          {/* Strings */}
+          {/* 
+            ============= STRING RENDERING LOOP =============
+            
+            Iterates through each guitar string and renders a GuitarString component.
+            
+            ARRAY STRUCTURE (OPEN_STRINGS):
+            Index 0: 'E4' → High E (thinnest string, highest pitch)
+            Index 1: 'B3' → B string
+            Index 2: 'G3' → G string
+            Index 3: 'D3' → D string
+            Index 4: 'A2' → A string
+            Index 5: 'E2' → Low E (thickest string, lowest pitch)
+            
+            EVENTS FLOW:
+            1. User holds Ctrl key → isCtrlPressed becomes true
+            2. User hovers over string → GuitarString.onMouseEnter fires
+            3. GuitarString checks: !isDisabled && !isMenuOpen && isCtrlPressed
+            4. If all conditions met → playNote() is called
+            5. String vibration animation triggers
+            
+            PROPS PASSED TO EACH STRING:
+            - openNote: Starting note for that string (e.g., "E4")
+            - stringNumber: 1-6, used for visual thickness
+            - totalFrets: Number of frets to render (16)
+            - isPolyphonic: Play multiple strings or stop previous note
+            - isMenuOpen: Disable playback when menu is open
+            - isCtrlPressed: Only play when Ctrl is held
+          */}
           <div className="space-y-2">
             {OPEN_STRINGS.map((openNote, index) => (
               <GuitarString
