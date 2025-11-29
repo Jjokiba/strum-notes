@@ -6,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const TOTAL_FRETS = 16;
 const OPEN_STRINGS = ['E4', 'B3', 'G3', 'D3', 'A2', 'E2']; // Standard tuning (high to low)
@@ -15,6 +15,32 @@ const Fretboard = () => {
   const [noteLegendOpen, setNoteLegendOpen] = useState(false);
   const [isPolyphonic, setIsPolyphonic] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+
+  // Track Ctrl key state
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        setIsCtrlPressed(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (!e.ctrlKey && !e.metaKey) {
+        setIsCtrlPressed(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', () => setIsCtrlPressed(false));
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', () => setIsCtrlPressed(false));
+    };
+  }, []);
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 bg-background relative">
@@ -109,7 +135,7 @@ const Fretboard = () => {
           <Music className="w-8 h-8 text-primary" />
           <h1 className="text-4xl font-bold text-foreground">Guitar Fretboard</h1>
         </div>
-        <p className="text-muted-foreground">Select one note per string • Slide over strings to play selected notes • Click strings to disable • Standard tuning (EADGBE)</p>
+        <p className="text-muted-foreground">Select one note per string • Hold Ctrl and slide over strings to play • Click strings to disable • Standard tuning (EADGBE)</p>
         
         {/* Polyphonic Mode Toggle */}
         <div className="flex items-center justify-center gap-2 mt-4">
@@ -127,11 +153,11 @@ const Fretboard = () => {
       <div className="w-full max-w-7xl overflow-x-auto">
         <div className="bg-fretboard-wood rounded-lg p-6 shadow-2xl min-w-max">
           {/* Fret numbers */}
-          <div className="flex mb-4 pl-16">
+          <div className="flex mb-2 pl-12">
             {Array.from({ length: TOTAL_FRETS + 1 }, (_, i) => (
               <div
                 key={i}
-                className="flex-shrink-0 text-center text-xs text-muted-foreground font-semibold"
+                className="flex-shrink-0 flex items-center justify-center text-xs text-muted-foreground font-semibold"
                 style={{ width: i === 0 ? '60px' : '80px' }}
               >
                 {i}
@@ -152,6 +178,7 @@ const Fretboard = () => {
                 totalFrets={TOTAL_FRETS}
                 isPolyphonic={isPolyphonic}
                 isMenuOpen={isMenuOpen}
+                isCtrlPressed={isCtrlPressed}
               />
             ))}
           </div>
@@ -160,7 +187,7 @@ const Fretboard = () => {
 
       <div className="mt-8 text-center text-sm text-muted-foreground max-w-md">
         <p className="mb-2">
-          Select one note per string by checking a fret. Slide your mouse over any string to play its selected note with realistic guitar sound.
+          Select one note per string by checking a fret. <strong>Hold Ctrl key</strong> and slide your mouse over strings to play the selected notes with realistic guitar sound.
         </p>
         <p className="text-xs opacity-75">
           <strong>To disable a string:</strong> Click directly on the colored string line (disabled strings appear grey). Open strings (fret 0) are selected by default.
