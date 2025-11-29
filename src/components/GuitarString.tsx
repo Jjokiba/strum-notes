@@ -9,9 +9,10 @@ interface GuitarStringProps {
   totalFrets: number;
   isPolyphonic: boolean;
   isMenuOpen: boolean;
+  isCtrlPressed: boolean;
 }
 
-const GuitarString = ({ openNote, stringNumber, totalFrets, isPolyphonic, isMenuOpen }: GuitarStringProps) => {
+const GuitarString = ({ openNote, stringNumber, totalFrets, isPolyphonic, isMenuOpen, isCtrlPressed }: GuitarStringProps) => {
   const [selectedFret, setSelectedFret] = useState<number>(0); // Default to open string
   const [isVibrating, setIsVibrating] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -20,7 +21,7 @@ const GuitarString = ({ openNote, stringNumber, totalFrets, isPolyphonic, isMenu
   const stringThickness = stringNumber <= 2 ? 1 : stringNumber <= 4 ? 2 : 3;
 
   const playCurrentNote = () => {
-    if (isDisabled || isMenuOpen) return;
+    if (isDisabled || isMenuOpen || !isCtrlPressed) return;
     
     const note = getNoteAtFret(openNote, selectedFret);
     playNote(note, 0.8, !isPolyphonic); // Stop previous notes if not in polyphonic mode
