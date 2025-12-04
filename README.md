@@ -6,5 +6,5 @@ It´s a website with a guitar fret with all the notes listed on the EADGBe Patte
 
 **URL**: 
 https://strum-notes.lovable.app
-In the current version to play a string you need to press CNTRL + Swing the mouse
+<br> In the current version to play a string you need to press CNTRL + Swing the mouse
 
