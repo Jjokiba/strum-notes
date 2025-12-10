@@ -35,7 +35,19 @@ interface GuitarStringProps {
 
 const GuitarString = ({ openNote, stringNumber, totalFrets, isPolyphonic, isMenuOpen, isCtrlPressed }: GuitarStringProps) => {
   
-  // ============= COMPONENT STATE =============
+  /**
+   * Calculate string thickness based on string number
+   * Higher strings (1-2) = thinner = 1px
+   * Middle strings (3-4) = medium = 2px
+   * Lower strings (5-6) = thicker = 3px
+   */
+  const stringThickness = stringNumber <= 2 
+      ? STRING_THICKNESS.HIGH_STRINGS 
+      : stringNumber <= 4 
+        ? STRING_THICKNESS.MID_STRINGS 
+        : STRING_THICKNESS.LOW_STRINGS;
+
+  //#region - COMPONENT STATE -
   
   /** 
    * Currently selected fret on this string (0-16)
@@ -56,21 +68,9 @@ const GuitarString = ({ openNote, stringNumber, totalFrets, isPolyphonic, isMenu
    */
   const [isDisabled, setIsDisabled] = useState(false);
 
-  // ============= VISUAL CONFIGURATION =============
+  //#endregion
   
-  /**
-   * Calculate string thickness based on string number
-   * Higher strings (1-2) = thinner = 1px
-   * Middle strings (3-4) = medium = 2px
-   * Lower strings (5-6) = thicker = 3px
-   */
-  const stringThickness = stringNumber <= 2 
-    ? STRING_THICKNESS.HIGH_STRINGS 
-    : stringNumber <= 4 
-      ? STRING_THICKNESS.MID_STRINGS 
-      : STRING_THICKNESS.LOW_STRINGS;
-
-  // ============= EVENT HANDLERS =============
+  //#region - EVENT HANDLERS  -
   
   /**
    * Play the currently selected note on this string
@@ -142,7 +142,9 @@ const GuitarString = ({ openNote, stringNumber, totalFrets, isPolyphonic, isMenu
     }
   };
 
-  // ============= RENDER =============
+  //#endregion
+
+  // - RENDER -
   
   return (
     <div className="relative flex items-center mb-4" onMouseEnter={handleStringHover}>

@@ -30,10 +30,10 @@ const Fretboard = () => {
   // ============= COMPONENT STATE =============
   
   /** Controls visibility of the note legend panel (left side) */
-  const [noteLegendOpen, setNoteLegendOpen] = useState(false);
+  const [noteLegendOpen, setNoteLegendOpen] = useState(true);
   
   /** Toggle between monophonic (one string) and polyphonic (multiple strings) playback */
-  const [isPolyphonic, setIsPolyphonic] = useState(false);
+  const [isPolyphonic, setIsPolyphonic] = useState(true);
   
   /** Tracks if the info/concepts menu is open (prevents string interaction when true) */
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -124,40 +124,40 @@ const Fretboard = () => {
       </div>
 
       {/* Note Legend - Left Side */}
-      <div className="fixed top-4 left-4 z-50 w-64">
+      <div className="fixed top-4 left-4 z-50 w-64 transition-transform ease-in-out duration-200">
         <Collapsible open={noteLegendOpen} onOpenChange={setNoteLegendOpen}>
-          <CollapsibleTrigger className="flex items-center gap-2 bg-card text-card-foreground px-4 py-2 rounded-lg shadow-lg border border-border hover:bg-accent transition-colors w-full">
-            <ChevronRight className={`w-4 h-4 transition-transform ${noteLegendOpen ? 'rotate-90' : ''}`} />
-            <span className="font-semibold">Note Names</span>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2 bg-card text-card-foreground rounded-lg shadow-lg border border-border p-4">
-            <div className="space-y-3">
-              <div className="text-sm">
-                <p className="font-semibold mb-2 text-foreground">Solfège (Latin):</p>
-                <div className="grid grid-cols-7 gap-2 text-center">
-                  <div className="font-medium">DO</div>
-                  <div className="font-medium">RE</div>
-                  <div className="font-medium">MI</div>
-                  <div className="font-medium">FA</div>
-                  <div className="font-medium">SOL</div>
-                  <div className="font-medium">LA</div>
-                  <div className="font-medium">SI</div>
+          <CollapsibleTrigger className="flex justify-center items-center gap-2 bg-card text-card-foreground px-4 py-2 rounded-lg shadow-lg border border-border hover:bg-orange-950 transition-colors w-full">
+            <CollapsibleContent className={`transition-all delay-1000 ${noteLegendOpen ? 'h-auto' : 'h-0'}`}>
+              <div className="space-y-3">
+                <div className="text-sm">
+                  <p className="font-semibold mb-2 text-foreground">Solfège (Latin):</p>
+                  <div className="grid grid-cols-7 gap-2 text-center">
+                    <div className="font-medium">DO</div>
+                    <div className="font-medium">RE</div>
+                    <div className="font-medium">MI</div>
+                    <div className="font-medium">FA</div>
+                    <div className="font-medium">SOL</div>
+                    <div className="font-medium">LA</div>
+                    <div className="font-medium">SI</div>
+                  </div>
+                </div>
+                <div className="text-sm border-t border-border pt-3">
+                  <p className="font-semibold mb-2 text-foreground">English Notation:</p>
+                  <div className="grid grid-cols-7 gap-2 text-center">
+                    <div className="font-medium">C</div>
+                    <div className="font-medium">D</div>
+                    <div className="font-medium">E</div>
+                    <div className="font-medium">F</div>
+                    <div className="font-medium">G</div>
+                    <div className="font-medium">A</div>
+                    <div className="font-medium">B</div>
+                  </div>
                 </div>
               </div>
-              <div className="text-sm border-t border-border pt-3">
-                <p className="font-semibold mb-2 text-foreground">English Notation:</p>
-                <div className="grid grid-cols-7 gap-2 text-center">
-                  <div className="font-medium">C</div>
-                  <div className="font-medium">D</div>
-                  <div className="font-medium">E</div>
-                  <div className="font-medium">F</div>
-                  <div className="font-medium">G</div>
-                  <div className="font-medium">A</div>
-                  <div className="font-medium">B</div>
-                </div>
-              </div>
-            </div>
-          </CollapsibleContent>
+            </CollapsibleContent>
+            <div className={`transition-transform ${noteLegendOpen ? 'hidden' : 'visible'}`} >Notes</div>
+            <ChevronRight className={`w-4 h-4 transition-transform ${noteLegendOpen ? 'hidden rotate-90' : ''}`} />
+            </CollapsibleTrigger>
         </Collapsible>
       </div>
 
@@ -184,7 +184,7 @@ const Fretboard = () => {
       <div className="w-full max-w-7xl overflow-x-auto">
         <div className="bg-fretboard-wood rounded-lg p-6 shadow-2xl min-w-max">
           {/* Fret numbers */}
-          <div className="flex mb-2 pl-12">
+          <div className="flex mb-2">
             {Array.from({ length: TOTAL_FRETS + 1 }, (_, i) => (
               <div
                 key={i}
@@ -195,9 +195,6 @@ const Fretboard = () => {
               </div>
             ))}
           </div>
-
-          {/* Nut (left edge of fretboard) */}
-          <div className="absolute left-6 top-20 bottom-6 w-1 bg-foreground rounded-full opacity-70" />
 
           {/* 
             ============= STRING RENDERING LOOP =============
